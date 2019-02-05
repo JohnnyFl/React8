@@ -1,0 +1,15 @@
+.tableb .tabler .SimpleTable-fab-3 {
+  opacity: 0;
+  transition: all .2s ease-out;
+}
+
+.tableb .tabler:hover .SimpleTable-fab-3{
+  opacity: 1;
+  transition: all .2s ease-out;
+}
+
+.App div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
