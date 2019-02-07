@@ -7,7 +7,7 @@ import Icon from "@material-ui/core/Icon";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import MenuItem from "@material-ui/core/MenuItem";
-import "./SimpleModal.css";
+import Fab from "@material-ui/core/Fab";
 
 const getModalStyle = () => {
   const top = 50;
@@ -74,12 +74,17 @@ const styles = theme => ({
 });
 
 class SimpleModal extends Component {
-  state = {
-    open: false,
-    name: "",
-    meal: "",
-    quantity: ""
-  };
+  constructor(props) {
+    super(props);
+    const { id, name, meal, quantity } = this.props;
+    this.state = {
+      open: false,
+      id,
+      name,
+      meal,
+      quantity
+    };
+  }
 
   handleChange = name => event => {
     this.setState({
@@ -90,7 +95,7 @@ class SimpleModal extends Component {
   handleSend = () => {
     const { name, meal, quantity } = this.state;
     if (name !== "" && meal !== "" && quantity !== "") {
-      this.props.handleAdd(this.state);
+      this.props.handleEdit(this.state);
       this.setState({ name: "", meal: "", quantity: "" });
     }
   };
@@ -108,15 +113,15 @@ class SimpleModal extends Component {
 
     return (
       <div>
-        <Button
+        <Fab
           onClick={this.handleOpen}
-          variant="contained"
+          size="small"
           color="primary"
-          className={classes.button}
+          aria-label="Edit"
+          className={classes.fab}
         >
-          <Icon className={classes.leftIcon}>add</Icon>
-          New Order
-        </Button>
+          <Icon>edit_icon</Icon>
+        </Fab>
         <Modal
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
@@ -129,7 +134,7 @@ class SimpleModal extends Component {
               id="modal-title"
               style={{ textAlign: "center" }}
             >
-              Сreate Order
+              Edit Order
             </Typography>
             <form className={classes.container} noValidate autoComplete="off">
               <TextField
@@ -185,8 +190,8 @@ class SimpleModal extends Component {
                   color="primary"
                   className={classes.button}
                 >
-                  <Icon className={classes.leftIcon}>add</Icon>
-                  Add Order
+                  <Icon className={classes.leftIcon}>edit</Icon>
+                  Edit Order
                 </Button>
               </div>
             </form>
@@ -202,6 +207,6 @@ SimpleModal.propTypes = {
 };
 
 // We need an intermediary variable for handling the recursive nesting.
-const SimpleModalWrapped = withStyles(styles)(SimpleModal);
+const EditButton = withStyles(styles)(SimpleModal);
 
-export default SimpleModalWrapped;
+export default EditButton;

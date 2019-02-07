@@ -13,10 +13,10 @@ import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import uuid from "uuid";
 import Fab from "@material-ui/core/Fab";
-import Icon from "@material-ui/core/Icon";
 import DeleteIcon from "@material-ui/icons/Delete";
 import green from "@material-ui/core/colors/green";
 import SimpleModalWrapped from "../Modal/SimpleModal";
+import EditButton from "../EditButton/EditButton";
 import "./Table.css";
 
 const styles = theme => ({
@@ -57,55 +57,75 @@ const theme = createMuiTheme({
   }
 });
 
-// let id = 0;
-// const createData = (lastName, meal, quantity, sum, options) => {
-//   sum = quantity * 5 + "$";
-//   id = uuid.v4();
-//   return { id, lastName, meal, quantity, sum, options };
-// };
-
-// const rows = [
-//   createData("Brooks S.", "Soup", 2),
-//   createData("Ward D.", "Salad", 3),
-//   createData("Casey B.", "Chicken", 7),
-//   createData("Watson J.", "Salmon", 2),
-//   createData("Hale F.", "Taco", 5),
-// ];
-
-const test = [];
-
 class SimpleTable extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      name: "",
-      meal: "",
-      quantity: "",
-      id: 0
-    };
-  }
-
-  onEdit = () => {
-    console.log(this);
-  };
-
-  onDelete = () => {
-    console.log(this);
+  state = {
+    name: "",
+    meal: "",
+    quantity: "",
+    id: "",
+    sum: "",
+    orders: [""]
   };
 
   updateData = value => {
-    this.setState({
-      name: value.name,
-      meal: value.meal,
-      quantity: Number(value.quantity),
-      id: uuid.v4()
+    const { id, name, meal, quantity } = value;
+    this.setState(() => {
+      return { id, name, meal, quantity };
     });
-    test.push(this.state);
-    console.log(this.state);
+  };
+
+  removeItem = index => {
+    const { orders } = this.state;
+    this.setState({
+      orders: orders.filter(order => {
+        return order.id !== index;
+      })
+    });
+  };
+
+  handleEdit = value => {
+    this.updateData(value);
+    const { orders } = this.state;
+    const { id, name, meal, quantity } = value;
+    const newOrders = orders.map(order => {
+      if (order.id === id) {
+        return { id, name, meal, quantity };
+      }
+      return null;
+    });
+
+    this.setState(() => {
+      return {
+        id: newOrders.id,
+        name: newOrders.name,
+        meal: newOrders.meal,
+        quantity: newOrders.quantity
+      };
+    });
+  };
+
+  handleAdd = value => {
+    this.updateData(value);
+    const { orders } = this.state;
+    const { id, name, meal, quantity } = value;
+    const data = {
+      sum: quantity * 5,
+      id: uuid.v4(),
+      name,
+      quantity,
+      meal
+    };
+
+    orders.push(data);
+    this.setState(() => {
+      return { orders, name, meal, quantity, id };
+    });
   };
 
   render() {
     const { classes } = this.props;
+    const { name, orders } = this.state;
+
     return (
       <div>
         <Paper className={classes.root}>
@@ -120,44 +140,49 @@ class SimpleTable extends Component {
                 <TableCell align="right" />
               </TableRow>
             </TableHead>
-            <TableBody className="tableb">
-              {test.map(row => (
-                <TableRow key={row.id} className="tabler">
-                  <TableCell component="th" scope="row">
-                    {row.id}
-                  </TableCell>
-                  <TableCell align="right">{row.name}</TableCell>
-                  <TableCell align="right">{row.meal}</TableCell>
-                  <TableCell align="right">{row.quantity}</TableCell>
-                  <TableCell align="right">{row.quantity * 5}$</TableCell>
-                  <TableCell align="right">
-                    <MuiThemeProvider theme={theme}>
-                      <Fab
-                        onClick={this.onEdit}
-                        size="small"
-                        color="primary"
-                        aria-label="Edit"
-                        className={classes.fab}
-                      >
-                        <Icon>edit_icon</Icon>
-                      </Fab>
-                    </MuiThemeProvider>
-                    <Fab
-                      onClick={this.onDelete}
-                      size="small"
-                      color="secondary"
-                      aria-label="Delete"
-                      className={classes.fab}
-                    >
-                      <DeleteIcon />
-                    </Fab>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
+            {name !== "" ? (
+              <TableBody className="tableb">
+                {orders.map(row => (
+                  <TableRow key={row.id} className="tabler">
+                    <TableCell component="th" scope="row">
+                      {row.id}
+                    </TableCell>
+                    <TableCell align="right">{row.name}</TableCell>
+                    <TableCell align="right">{row.meal}</TableCell>
+                    <TableCell align="right">{row.quantity}</TableCell>
+                    <TableCell align="right">
+                      {row.sum} {row.sum !== "" ? "$" : ""}
+                    </TableCell>
+                    <TableCell align="right">
+                      <div className="buttons">
+                        <MuiThemeProvider theme={theme}>
+                          <EditButton
+                            name={row.name}
+                            meal={row.meal}
+                            quantity={row.quantity}
+                            id={row.id}
+                            handleAdd={this.handleAdd}
+                            handleEdit={this.handleEdit}
+                          />
+                        </MuiThemeProvider>
+                        <Fab
+                          onClick={() => this.removeItem(row.id)}
+                          size="small"
+                          color="secondary"
+                          aria-label="Delete"
+                          className={classes.fab}
+                        >
+                          <DeleteIcon />
+                        </Fab>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            ) : null}
           </Table>
         </Paper>
-        <SimpleModalWrapped updateData={this.updateData} />
+        <SimpleModalWrapped handleAdd={this.handleAdd} />
       </div>
     );
   }
