@@ -84,22 +84,25 @@ class SimpleTable extends Component {
   };
 
   handleEdit = value => {
+    console.log(value);
     this.updateData(value);
     const { orders } = this.state;
-    const { id, name, meal, quantity } = value;
+    const { id, name, meal, quantity, index } = value;
     const newOrders = orders.map(order => {
       if (order.id === id) {
         return { id, name, meal, quantity };
       }
       return null;
     });
+    // console.log(this.state);
+    // this.state.orders[index] = newOrders;
+    // console.log(this.state);
 
+    // fix above (problem with structure) we should choose element of array and then change object value
     this.setState(() => {
+      const { orders } = this.state;
       return {
-        id: newOrders.id,
-        name: newOrders.name,
-        meal: newOrders.meal,
-        quantity: newOrders.quantity
+        orders: this.state.orders
       };
     });
   };
@@ -115,6 +118,7 @@ class SimpleTable extends Component {
       quantity,
       meal
     };
+    console.log(this.state);
 
     orders.push(data);
     this.setState(() => {
@@ -142,12 +146,14 @@ class SimpleTable extends Component {
             </TableHead>
             {name !== "" ? (
               <TableBody className="tableb">
-                {orders.map(row => (
+                {orders.map((row, index) => (
                   <TableRow key={row.id} className="tabler">
                     <TableCell component="th" scope="row">
                       {row.id}
                     </TableCell>
-                    <TableCell align="right">{row.name}</TableCell>
+                    <TableCell align="right">
+                      {row.name}, {index}
+                    </TableCell>
                     <TableCell align="right">{row.meal}</TableCell>
                     <TableCell align="right">{row.quantity}</TableCell>
                     <TableCell align="right">
@@ -161,6 +167,7 @@ class SimpleTable extends Component {
                             meal={row.meal}
                             quantity={row.quantity}
                             id={row.id}
+                            index={index}
                             handleAdd={this.handleAdd}
                             handleEdit={this.handleEdit}
                           />

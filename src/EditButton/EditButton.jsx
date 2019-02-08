@@ -76,13 +76,14 @@ const styles = theme => ({
 class SimpleModal extends Component {
   constructor(props) {
     super(props);
-    const { id, name, meal, quantity } = this.props;
+    const { id, name, meal, quantity, index } = this.props;
     this.state = {
       open: false,
       id,
       name,
       meal,
-      quantity
+      quantity,
+      index
     };
   }
 
@@ -93,9 +94,9 @@ class SimpleModal extends Component {
   };
 
   handleSend = () => {
-    const { name, meal, quantity } = this.state;
+    const { id, name, meal, quantity, index } = this.state;
     if (name !== "" && meal !== "" && quantity !== "") {
-      this.props.handleEdit(this.state);
+      this.props.handleEdit({ id, name, meal, quantity, index });
       this.setState({ name: "", meal: "", quantity: "" });
     }
   };
