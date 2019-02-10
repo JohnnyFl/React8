@@ -1,15 +1,3 @@
-.tableb .tabler .SimpleTable-fab-3,
-.tableb .tabler .MuiButtonBase-root-260 {
-  opacity: 0;
-  transition: all 0.2s ease-out;
-}
-
-.tableb .tabler:hover .SimpleTable-fab-3,
-.tableb .tabler:hover .MuiButtonBase-root-260 {
-  opacity: 1;
-  transition: all 0.2s ease-out;
-}
-
 .App div {
   display: flex;
   flex-direction: column;

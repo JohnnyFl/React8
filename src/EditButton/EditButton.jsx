@@ -76,29 +76,20 @@ const styles = theme => ({
 class SimpleModal extends Component {
   constructor(props) {
     super(props);
-    const { id, name, meal, quantity, index } = this.props;
+    const { id, name, meal, quantity, sum } = this.props.currentOrder;
     this.state = {
       open: false,
       id,
       name,
       meal,
       quantity,
-      index
+      sum
     };
   }
 
-  handleChange = name => event => {
-    this.setState({
-      [name]: event.target.value
-    });
-  };
-
-  handleSend = () => {
-    const { id, name, meal, quantity, index } = this.state;
-    if (name !== "" && meal !== "" && quantity !== "") {
-      this.props.handleEdit({ id, name, meal, quantity, index });
-      this.setState({ name: "", meal: "", quantity: "" });
-    }
+  handleInputChange = event => {
+    const { name, value } = event.target;
+    this.setState({ [name]: value });
   };
 
   handleOpen = () => {
@@ -111,6 +102,7 @@ class SimpleModal extends Component {
 
   render() {
     const { classes } = this.props;
+    const { id, name, meal, quantity } = this.state;
 
     return (
       <div>
@@ -144,18 +136,20 @@ class SimpleModal extends Component {
                 label="Last Name"
                 className={classes.textField}
                 value={this.state.name}
-                onChange={this.handleChange("name")}
                 margin="normal"
+                name="name"
                 variant="outlined"
+                onChange={this.handleInputChange}
               />
               <TextField
                 required
                 id="outlined-select-currency"
                 select
                 label="Meal"
+                name="meal"
                 className={classes.textField}
                 value={this.state.meal}
-                onChange={this.handleChange("meal")}
+                onChange={this.handleInputChange}
                 SelectProps={{
                   MenuProps: {
                     className: classes.menu
@@ -174,22 +168,31 @@ class SimpleModal extends Component {
                 required
                 id="outlined-number"
                 label="Quantity"
-                value={this.state.quantity}
-                onChange={this.handleChange("quantity")}
                 type="number"
+                name="quantity"
+                onChange={this.handleInputChange}
                 className={classes.textField}
                 InputLabelProps={{
                   shrink: true
                 }}
                 margin="normal"
                 variant="outlined"
+                value={this.state.quantity}
               />
               <div className="addButton">
                 <Button
-                  onClick={this.handleSend}
                   variant="contained"
                   color="primary"
                   className={classes.button}
+                  onClick={() => {
+                    let sum = this.state.quantity * 5;
+                    const order = { id, name, meal, quantity, sum };
+                    this.props.updateOrder(id, order);
+                    console.log(order);
+                    this.setState(() => {
+                      return { open: !this.state.open };
+                    });
+                  }}
                 >
                   <Icon className={classes.leftIcon}>edit</Icon>
                   Edit Order

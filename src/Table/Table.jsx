@@ -59,76 +59,71 @@ const theme = createMuiTheme({
 
 class SimpleTable extends Component {
   state = {
+    id: "",
     name: "",
     meal: "",
     quantity: "",
-    id: "",
     sum: "",
-    orders: [""]
-  };
-
-  updateData = value => {
-    const { id, name, meal, quantity } = value;
-    this.setState(() => {
-      return { id, name, meal, quantity };
-    });
-  };
-
-  removeItem = index => {
-    const { orders } = this.state;
-    this.setState({
-      orders: orders.filter(order => {
-        return order.id !== index;
-      })
-    });
-  };
-
-  handleEdit = value => {
-    console.log(value);
-    this.updateData(value);
-    const { orders } = this.state;
-    const { id, name, meal, quantity, index } = value;
-    const newOrders = orders.map(order => {
-      if (order.id === id) {
-        return { id, name, meal, quantity };
+    orders: [
+      {
+        id: uuid.v4(),
+        name: "Josh",
+        meal: "Sushi",
+        quantity: 3,
+        sum: 15
+      },
+      {
+        id: uuid.v4(),
+        name: "Jaks",
+        meal: "Soup",
+        quantity: 2,
+        sum: 10
+      },
+      {
+        id: uuid.v4(),
+        name: "Lily",
+        meal: "Pizza",
+        quantity: 1,
+        sum: 5
       }
-      return null;
-    });
-    // console.log(this.state);
-    // this.state.orders[index] = newOrders;
-    // console.log(this.state);
+    ]
+  };
 
-    // fix above (problem with structure) we should choose element of array and then change object value
-    this.setState(() => {
-      const { orders } = this.state;
-      return {
-        orders: this.state.orders
-      };
+  addOrder = order => {
+    this.setState(state => {
+      return state.orders.push(order);
     });
   };
 
-  handleAdd = value => {
-    this.updateData(value);
-    const { orders } = this.state;
-    const { id, name, meal, quantity } = value;
-    const data = {
-      sum: quantity * 5,
-      id: uuid.v4(),
-      name,
-      quantity,
-      meal
-    };
-    console.log(this.state);
-
-    orders.push(data);
-    this.setState(() => {
-      return { orders, name, meal, quantity, id };
+  deleteOrder = id => {
+    this.setState({
+      orders: this.state.orders.filter(order => order.id !== id)
     });
   };
+
+  updateOrder = (id, updatedOrder) => {
+    this.setState({
+      orders: this.state.orders.map(order =>
+        order.id === id ? updatedOrder : order
+      )
+    });
+    console.log('updatedOrder', updatedOrder);
+    console.log('state', this.state.orders)
+  };
+
+  // editRow = order => {
+  //   this.setState({
+  //     id: order.id,
+  //     name: order.name,
+  //     meal: order.meal,
+  //     quantity: order.quantity,
+  //     sum: order.sum
+  //   });
+  // };
 
   render() {
     const { classes } = this.props;
-    const { name, orders } = this.state;
+    const { orders } = this.state;
 
     return (
       <div>
@@ -144,52 +139,42 @@ class SimpleTable extends Component {
                 <TableCell align="right" />
               </TableRow>
             </TableHead>
-            {name !== "" ? (
-              <TableBody className="tableb">
-                {orders.map((row, index) => (
-                  <TableRow key={row.id} className="tabler">
-                    <TableCell component="th" scope="row">
-                      {row.id}
-                    </TableCell>
-                    <TableCell align="right">
-                      {row.name}, {index}
-                    </TableCell>
-                    <TableCell align="right">{row.meal}</TableCell>
-                    <TableCell align="right">{row.quantity}</TableCell>
-                    <TableCell align="right">
-                      {row.sum} {row.sum !== "" ? "$" : ""}
-                    </TableCell>
-                    <TableCell align="right">
-                      <div className="buttons">
-                        <MuiThemeProvider theme={theme}>
-                          <EditButton
-                            name={row.name}
-                            meal={row.meal}
-                            quantity={row.quantity}
-                            id={row.id}
-                            index={index}
-                            handleAdd={this.handleAdd}
-                            handleEdit={this.handleEdit}
-                          />
-                        </MuiThemeProvider>
-                        <Fab
-                          onClick={() => this.removeItem(row.id)}
-                          size="small"
-                          color="secondary"
-                          aria-label="Delete"
-                          className={classes.fab}
-                        >
-                          <DeleteIcon />
-                        </Fab>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            ) : null}
+            <TableBody className="tableb">
+              {orders.map((row, index) => (
+                <TableRow key={row.id} className="tabler">
+                  <TableCell component="th" scope="row">
+                    {row.id}
+                  </TableCell>
+                  <TableCell align="right">{row.name}</TableCell>
+                  <TableCell align="right">{row.meal}</TableCell>
+                  <TableCell align="right">{row.quantity}</TableCell>
+                  <TableCell align="right">{row.sum} $</TableCell>
+                  <TableCell align="right">
+                    <div className="buttons">
+                      <MuiThemeProvider theme={theme}>
+                        <EditButton
+                          currentOrder={this.state.orders[index]}
+                          index={index}
+                          updateOrder={this.updateOrder}
+                        />
+                      </MuiThemeProvider>
+                      <Fab
+                        size="small"
+                        color="secondary"
+                        aria-label="Delete"
+                        className={classes.fab}
+                        onClick={() => this.deleteOrder(row.id)}
+                      >
+                        <DeleteIcon />
+                      </Fab>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
           </Table>
         </Paper>
-        <SimpleModalWrapped handleAdd={this.handleAdd} />
+        <SimpleModalWrapped addOrder={this.addOrder} />
       </div>
     );
   }

@@ -7,6 +7,7 @@ import Icon from "@material-ui/core/Icon";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import MenuItem from "@material-ui/core/MenuItem";
+import uuid from "uuid";
 import "./SimpleModal.css";
 
 const getModalStyle = () => {
@@ -74,26 +75,17 @@ const styles = theme => ({
 });
 
 class SimpleModal extends Component {
-  state = {
-    open: false,
-    name: "",
-    meal: "",
-    quantity: ""
-  };
-
-  handleChange = name => event => {
-    this.setState({
-      [name]: event.target.value
-    });
-  };
-
-  handleSend = () => {
-    const { name, meal, quantity } = this.state;
-    if (name !== "" && meal !== "" && quantity !== "") {
-      this.props.handleAdd(this.state);
-      this.setState({ name: "", meal: "", quantity: "" });
-    }
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      open: false,
+      id: uuid.v4(),
+      name: "",
+      meal: "",
+      quantity: "",
+      orders: [{}]
+    };
+  }
 
   handleOpen = () => {
     this.setState({ open: true });
@@ -103,8 +95,21 @@ class SimpleModal extends Component {
     this.setState({ open: false });
   };
 
+  handleInputChange = event => {
+    const { name, value } = event.target;
+    this.setState({ [name]: value });
+  };
+
   render() {
     const { classes } = this.props;
+
+    const order = {
+      id: uuid.v4(),
+      name: this.state.name,
+      meal: this.state.meal,
+      quantity: Number(this.state.quantity),
+      sum: this.state.quantity * 5
+    };
 
     return (
       <div>
@@ -137,19 +142,20 @@ class SimpleModal extends Component {
                 id="outlined-name"
                 label="Last Name"
                 className={classes.textField}
+                name="name"
                 value={this.state.name}
-                onChange={this.handleChange("name")}
                 margin="normal"
                 variant="outlined"
+                onChange={this.handleInputChange}
               />
               <TextField
                 required
                 id="outlined-select-currency"
                 select
                 label="Meal"
+                name="meal"
                 className={classes.textField}
                 value={this.state.meal}
-                onChange={this.handleChange("meal")}
                 SelectProps={{
                   MenuProps: {
                     className: classes.menu
@@ -157,6 +163,7 @@ class SimpleModal extends Component {
                 }}
                 margin="normal"
                 variant="outlined"
+                onChange={this.handleInputChange}
               >
                 {meals.map(option => (
                   <MenuItem key={option.value} value={option.value}>
@@ -169,9 +176,10 @@ class SimpleModal extends Component {
                 id="outlined-number"
                 label="Quantity"
                 value={this.state.quantity}
-                onChange={this.handleChange("quantity")}
+                name="quantity"
                 type="number"
                 className={classes.textField}
+                onChange={this.handleInputChange}
                 InputLabelProps={{
                   shrink: true
                 }}
@@ -180,10 +188,19 @@ class SimpleModal extends Component {
               />
               <div className="addButton">
                 <Button
-                  onClick={this.handleSend}
                   variant="contained"
                   color="primary"
                   className={classes.button}
+                  onClick={() => {
+                    this.props.addOrder(order);
+                    this.setState({
+                      id: "",
+                      name: "",
+                      meal: "",
+                      quantity: "",
+                      sum: ""
+                    });
+                  }}
                 >
                   <Icon className={classes.leftIcon}>add</Icon>
                   Add Order
